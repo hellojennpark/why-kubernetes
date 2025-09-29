@@ -10,5 +10,5 @@
 ## 쿠버네티스의 구조 <a href="#structure" id="structure"></a>
 
 * [들어가며](structure/intro.md)
-* [컨트롤플레인과 노드](structure/page.md)
+* [Control Plane과 Node](structure/control-plane-and-node.md)
 * [etcd](structure/etcd.md)

@@ -2,7 +2,7 @@
 description: 쿠버네티스의 각 구성요소가 존재하는 이유
 ---
 
-# 컨트롤플레인과 노드
+# Control Plane과 Node
 
 ### 쿠버네티스 클러스터
 
@@ -33,7 +33,7 @@ description: 쿠버네티스의 각 구성요소가 존재하는 이유
 
 
 
-### 컨트롤 플레인
+### 컨트롤 플레인 (Control Plane)
 
 <figure><img src="../.gitbook/assets/image (6).png" alt="" width="375"><figcaption></figcaption></figure>
 
@@ -90,7 +90,7 @@ kubectl은 쿠버네티스를 조작하기 위한 공식 CLI 도구입니다. �
 
 
 
-### 노드
+### 워커 노드 (Worker Node)
 
 <figure><img src="../.gitbook/assets/image (9).png" alt="" width="375"><figcaption></figcaption></figure>
 
