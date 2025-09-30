@@ -37,7 +37,7 @@ etcd는 쿠버네티스 클러스터의 **모든 상태**를 저장하는 **분�
 
 <p align="center"><sup>[표] 주요 오브젝트 종류</sup></p>
 
-## ETCD를 사용하는 이유
+## etcd를 사용하는 이유
 
 ### 1. 단일 진실 저장소 (Single Source of Truth)
 
