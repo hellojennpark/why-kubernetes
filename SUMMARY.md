@@ -17,4 +17,4 @@
 
 ## 부록 <a href="#additional" id="additional"></a>
 
-* [etcd](additional/etcd.md)
+* [kube-apiserver 와 etcd 통신 구조](additional/kube-apiserver-etcd-communication.md)
