@@ -18,3 +18,4 @@
 ## 부록 <a href="#additional" id="additional"></a>
 
 * [kube-apiserver 와 etcd 통신 구조](additional/kube-apiserver-etcd-communication.md)
+* [etcd 읽고 쓰기](additional/etcd.md)
