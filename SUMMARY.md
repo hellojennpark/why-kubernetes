@@ -13,7 +13,13 @@
 
 * [들어가며](structure/intro.md)
 * [Control Plane과 Node](structure/control-plane-and-node.md)
+* [kube-apiserver](structure/kube-apiserver.md)
 * [etcd](structure/etcd.md)
+* [kube-scheduler](structure/kube-scheduler.md)
+* [controller manager](structure/controller-manager.md)
+* [kubelet](structure/kubelet.md)
+* [kube-proxy](structure/kube-proxy.md)
+* [Container Runtime Interface](structure/container-runtime-interface.md)
 
 ## 부록 <a href="#additional" id="additional"></a>
 
