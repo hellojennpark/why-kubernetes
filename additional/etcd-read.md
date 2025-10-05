@@ -6,7 +6,7 @@ description: etcd 에서 읽기 작업 시의 내부 통신 흐름을 알아봅�
 
 ## etcd 읽기
 
-<figure><img src="../.gitbook/assets/image (16).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (1).png" alt=""><figcaption></figcaption></figure>
 
 etcd는 두 가지 유형의 읽기를 지원합니다:
 

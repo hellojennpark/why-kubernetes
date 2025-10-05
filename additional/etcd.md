@@ -4,7 +4,7 @@ description: etcd 에서 쓰기 작업 시의 내부 통신 흐름을 알아봅�
 
 # etcd 쓰기
 
-<figure><img src="../.gitbook/assets/image.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (2).png" alt=""><figcaption></figcaption></figure>
 
 
 
