@@ -297,3 +297,18 @@ Separation of Concerns는 **서로 다른 기능을 가진 컴포넌트를 분�
 자세한 내용은 [etcd 공식 문서](https://etcd.io/docs/v3.7/faq/#what-is-failure-tolerance)를 참고바랍니다.
 {% endhint %}
 
+
+
+추가적으로 etcd에 대해 알고 싶다면  아래 링크를 참고바랍니다.
+
+{% content-ref url="../additional/kube-apiserver-etcd-communication.md" %}
+[kube-apiserver-etcd-communication.md](../additional/kube-apiserver-etcd-communication.md)
+{% endcontent-ref %}
+
+{% content-ref url="../additional/etcd-read.md" %}
+[etcd-read.md](../additional/etcd-read.md)
+{% endcontent-ref %}
+
+{% content-ref url="../additional/etcd-write.md" %}
+[etcd-write.md](../additional/etcd-write.md)
+{% endcontent-ref %}
