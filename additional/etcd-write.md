@@ -1,12 +1,21 @@
 ---
-description: etcd 에서 쓰기 작업 시의 내부 통신 흐름을 알아봅시다.
+description: >-
+  etcd 에서 쓰기 작업 시의 내부 통신 흐름을 알아봅시다. 'etcd 에서의 Log'와 'WAL', 'KV Store',
+  'Backend(BoltDB/bbolt)'의 개념에 대해서도 알아보겠습니다.
 ---
 
 # etcd 쓰기
 
-<figure><img src="../.gitbook/assets/image (17).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (20).png" alt=""><figcaption></figcaption></figure>
 
-
+| 단계                            | 컴포넌트                     | 역할 및 설명                                                                                                                                                           |
+| ----------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| \[1] 클라이언트 요청 수신 및 \[2] 검증 단계 | API Server               | 클라이언트 요청을 수신하고, Auth/Lease 컴포넌트에 유효성을 확인합니다.                                                                                                                      |
+| \[3] KV Store 로직 호출           | API Server → KV Store    | 요청이 유효하면, API Server는 해당 요청을 처리하는 KV Store 로직을 호출합니다. (KV Store는 API Server에 의해 로드된 모듈)                                                                           |
+| \[4] Raft 제안 (Propose)        | KV Store → Raft Protocol | KV Store는 데이터 변경을 즉시 수행하지 않습니다. 대신, 변경될 내용을 담아 Raft Protocol에 '**제안(Proposal)**'합니다. 이 제안이 바로 KV Store가 Raft에게 요청하는 부분입니다.                                        |
+| \[5] 복제 및 \[6] 합의             | Raft Protocol            | Raft는 이 제안을 자신의 WAL에 기록하고, 다른 멤버들에게 복제하여 **과반수(Quorum)**&#xC758; 승인을 받습니다. (이 과정에서 Raft는 KV Store에 의존하지 않고 독립적으로 동작)                                              |
+| \[7]최종 적용 (Apply)             | Raft Protocol → KV Store | 합의가 완료되어 로그가 Commit되면, Raft는 로그 항목을 KV Store에 다시 전달(Apply)합니다.                                                                                                    |
+| \[8] 데이터 반영                   | KV Store                 | KV Store는 전달받은 로그를 비로소 Store(MVCC)에 반영(키-값 데이터를 인메모리에 업데이트)하고 **Backend (BoltDB)**&#xC5D0; 영구 저장하고, 해당 키를 Watch하는 클라이언트에게 이벤트를 알립니다. 또한 Lease 및 Auth 상태를 업데이트합니다. |
 
 
 
@@ -70,3 +79,42 @@ Raft에서 로그는 **복제 상태 기계(Replicated State Machine, RSM)**&#xB
   * Kubernetes에서 사용하는 etcd는 Raft 알고리즘을 사용하여 합의를 달성합니다.
   * etcd는 Raft 로그 항목을 실제로 디스크에 기록하고 영구적으로 유지하기 위해 WAL을 사용합니다.
   * 따라서 etcd에서 클라이언트의 쓰기 요청은 Raft 알고리즘에 의해 처리되지만, 그 결과물인 Raft 로그 엔트리는 WAL을 통해 디스크에 안전하게 저장됩니다.
+
+#### KV Store, MVCC Store, BoltDB의 관계
+
+{% hint style="success" %}
+* **KV Store**: 사용자가 보는 논리적 Key-Value API 계층
+* **MVCC Store**: 내부에서 revision/version을 관리해서 스냅샷, watch, 트랜잭션을 가능하게 함
+* **BoltDB**: 실제 디스크에 데이터를 저장하는 물리적 엔진
+{% endhint %}
+
+1. **KV Store**
+   * **가장 상단 API 계층**입니다.
+   * 클라이언트의 `Put`, `Get`, `Delete`, `Range`, `Txn` 요청을 받습니다.
+   * Raft를 통해 합의된 로그를 commit 한 다음, 실제 저장은 **MVCC Store**에 위임합니다.
+   * 즉, “논리적 Key-Value 인터페이스”만 담당하고 실제 저장은 하지 않습니다.
+2. **MVCC Store**
+   * **멀티버전 컨트롤 계층입니다.**
+   * etcd는 단순한 KV DB가 아니라 '시간(Revision)' 개념을 가집니다.
+     * 각 변경마다 `revision` 이 증가합니다.&#x20;
+     * `Get` 할 때 “이 revision 시점의 값”을 읽을 수 있습니다.
+   * 덕분에 etcd는 아래 기능을 가지고 있습니다.
+     * **Watch**: 변경 감지 (revision 기반)
+     * **Snapshot**: 과거 시점 상태 복원
+     * **Concurrent Read/Write 보장** 가능
+3. BoltDB
+   * **물리적 스토리지 엔진입니다.**
+   * etcd는 SQLite처럼 DB 파일 하나를 유지합니다.
+   * BoltDB는 **B+Tree 기반 Key-Value 저장소**로, etcd는 여기에 아래를 저장합니다.
+     * `key`: (revision, key 이름)
+     * `value`: 실제 데이터(JSON, protobuf 직렬화)
+     * `meta bucket`: lease, auth, consistent index 등 관리
+
+{% hint style="info" %}
+**Binary Tree**는 각 노드가 2개의 자식만 가지는 데이터 구조로 가장 기본적인 형태입니다. 트리의 깊이가 깊어지면 느려지는 특징을 가지고 있습니다.
+
+**B-Tree**는 Balanced Tree로 Binary Tree를 디스크에 효율적으로 저장하기 위해 발전한 구조입니다. 각 노드가 2개 이상의 key를 가져 트리의 높이가 훨씬 낮습니다.&#x20;
+
+**B+Tree** 는 B-Tree를 개선한 데이터 구조로 **DB나 파일시스템에서 표준**으로 쓰이는 구조입니다. B+트리에서 모든 실제 데이터는 “리프 노드”에만 저장하고, 상위 노드는 인덱스 역할만 합니다. 따라서 내부 노드가 순수하게 key index만 가지므로 한 노드에 더 많은 key를 저장할 수 있어서 트리 높이가 낮아집니다. 또한 리프 노드가 서로 연결되어있기 때문에(Linked List) 범위 검색 시 부모 노드를 왔다갔다(순회) 할 필요 없습니다.
+{% endhint %}
+

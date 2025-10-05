@@ -19,4 +19,4 @@
 
 * [kube-apiserver 와 etcd 통신 구조](additional/kube-apiserver-etcd-communication.md)
 * [etcd 읽기](additional/etcd-read.md)
-* [etcd 쓰기](additional/etcd.md)
+* [etcd 쓰기](additional/etcd-write.md)
