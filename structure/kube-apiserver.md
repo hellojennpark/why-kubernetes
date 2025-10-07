@@ -174,5 +174,36 @@ RBAC에서 허용된 권한인가?
 {% endstep %}
 {% endstepper %}
 
+## 쿠버네티스 API 확장
+
+kube-apiserver는 단순히 클러스터의 요청을 중계하는 것에 그치지 않습니다.\
+쿠버네티스의 아키텍처가 발전하면서, 다양한 기능(예: 메트릭 수집, 정책 검증, **CRD 관리**)을\
+외부 컴포넌트로 확장할 필요가 생겼습니다.
+
+### 확장이 필요한 이유
+
+처음의 Kubernetes는 사실상 **“Pod을 노드에 배치하는 스케줄러 + API Server + etcd”** 구조였습니다. 관리하는 리소스도 Pod, Service, Node 등으로 단순했습니다. 즉, 정해진 리소스만 쓸 수 있고, 기능을 추가하려면 kube-apiserver 코드를 직접 수정해야 했습니다.
+
+기업들이 쿠버네티스를 도입하면서, 자신들의 서비스에 맞는 운영/보안/리소스 모델을 확장(내부 정책 검증, 커스텀 Job Controller 등)하려 했습니다.  그런데 기존 구조에서 이런 걸 하려면 쿠버네티스 자체를 fork 하거나 patch를 만들어야 했습니다.
+
+그래서 Kubernetes는 **"내부를 건드리지 않고도 기능을 추가할 수 있는 구조"** 로 진화했습니다. 그 중심이 바로 API Aggregation Layer, CustomResourceDefinition의 두가지입니다.
+
+| 확장 방식                          | 설명                                                |
+| ------------------------------ | ------------------------------------------------- |
+| CustomResourceDefinition (CRD) | etcd에 새 리소스 스키마를 등록하는 “내장형 확장”                    |
+| API Aggregation Layer (AA)     | 외부에 있는 또 다른 API 서버를 kube-apiserver에 붙이는 “프록시형 확장” |
+
+<p align="center"><sup>[표] 쿠버네티스 확장 방식</sup></p>
+
+### API Aggregation Layer
+
+API Aggregation Layer는 kube-apiserver가 **외부 확장 API 서버를 대신 노출해주는 프록시 레이어**입니다.\
+사용자는 `/apis` 경로를 통해 여러 확장 API에 접근할 수 있지만,\
+실제 요청은 kube-apiserver가 내부적으로 해당 확장 서버로 전달하고 응답을 되돌려줍니다.
+
+### CustomResourceDefinition
+
+
+
 
 
