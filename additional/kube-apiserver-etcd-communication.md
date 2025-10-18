@@ -4,7 +4,7 @@ description: etcd 클러스터 개념 이해
 
 # kube-apiserver 와 etcd 통신 구조
 
-<figure><img src="../.gitbook/assets/image (13).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (13).png" alt="" width="375"><figcaption></figcaption></figure>
 
 쿠버네티스에서 `kubectl`이나 컨트롤러가 요청을 보내면, kube-apiserver가 이를 받아 처리한 뒤 etcd에 저장하게 됩니다.\
 이 때 kube-apiserver는 etcd v3 클라이언트 라이브러리를 사용하며, 이 라이브러리가 gRPC 클라이언트 Stub을 통해 etcd 멤버와 통신합니다.&#x20;
@@ -24,7 +24,7 @@ etcd 클라이언트는 여러 멤버 엔드포인트를 설정하면 내부적�
 
 ### etcd cluster
 
-<figure><img src="../.gitbook/assets/image (15).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (15).png" alt="" width="375"><figcaption></figcaption></figure>
 
 etcd 클러스터는 여러 개의 etcd 멤버로 구성된 분산 Key-Value 저장소의 집합을 말합니다.
 
